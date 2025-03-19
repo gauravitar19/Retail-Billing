@@ -15,7 +15,7 @@ interface Bill {
 }
 
 // In-memory storage (would be replaced with a database in production)
-let bills: Bill[] = [];
+const bills: Bill[] = [];
 
 export async function GET() {
   return NextResponse.json(bills);
