@@ -1,36 +1,79 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Retail Billing System
+
+A web-based retail billing system built with Next.js, TypeScript, and Tailwind CSS.
+
+## Features
+
+- **Admin Panel**: Manage inventory items (add, remove, list)
+- **Billing Interface**: Create bills for customers
+- **Real-time Inventory Management**: Stock levels are automatically updated
+- **Bill Generation**: Generate and print customer bills
+- **Responsive Design**: Works on desktop and mobile devices
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
 
+- Node.js 18+ 
+- npm or yarn
+
+### Installation
+
+1. Clone the repository:
+```bash
+git clone <repository-url>
+cd retail-billing-app
+```
+
+2. Install dependencies:
+```bash
+npm install
+# or
+yarn install
+```
+
+3. Run the development server:
 ```bash
 npm run dev
 # or
 yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+4. Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Usage
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Admin Panel
 
-## Learn More
+1. Navigate to `/admin` to access the admin panel
+2. Add new items with name, price, and quantity
+3. View and manage inventory items
+4. Delete items as needed
 
-To learn more about Next.js, take a look at the following resources:
+### Billing Interface
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. Navigate to `/billing` to access the billing interface
+2. Add items to the cart
+3. Review the cart and total
+4. Generate a bill
+5. Print the generated bill
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Deployment
 
-## Deploy on Vercel
+This application can be easily deployed to Vercel:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+1. Push your code to a GitHub repository
+2. Go to [Vercel](https://vercel.com) and sign in with GitHub
+3. Import your repository
+4. Deploy
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Notes
+
+- This application uses in-memory storage for demonstration purposes
+- For production use, replace with a proper database (MongoDB, PostgreSQL, etc.)
+- Consider adding authentication for the admin panel
+- Implement error handling and proper validation
+
+## License
+
+MIT
