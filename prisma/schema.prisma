@@ -1,0 +1,190 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// User roles and authentication
+model User {
+  id             String          @id @default(uuid())
+  name           String
+  email          String          @unique
+  password       String
+  role           String          @default("CASHIER") // "ADMIN", "MANAGER", "CASHIER"
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  invoices       Invoice[]       // Invoices created by this user
+  profile        UserProfile?
+  activityLogs   ActivityLog[]
+}
+
+model UserProfile {
+  id             String    @id @default(uuid())
+  userId         String    @unique
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  phoneNumber    String?
+  address        String?
+  avatarUrl      String?
+  joinedDate     DateTime  @default(now())
+}
+
+// Customer management
+model Customer {
+  id              String            @id @default(uuid())
+  name            String
+  email           String?
+  phone           String?
+  address         String?
+  loyaltyPoints   Int               @default(0)
+  totalPurchases  Decimal           @default(0)
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  invoices        Invoice[]
+  loyaltyHistory  LoyaltyHistory[]
+}
+
+model LoyaltyHistory {
+  id             String    @id @default(uuid())
+  customerId     String
+  customer       Customer  @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  points         Int
+  description    String
+  createdAt      DateTime  @default(now())
+}
+
+// Product inventory
+model Category {
+  id          String    @id @default(uuid())
+  name        String    @unique
+  description String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  products    Product[]
+}
+
+model Product {
+  id                String             @id @default(uuid())
+  name              String
+  description       String?
+  sku               String?            @unique
+  barcode           String?            @unique
+  price             Decimal
+  cost              Decimal            @default(0)
+  taxRate           Decimal            @default(0)
+  stock             Int                @default(0)
+  minStock          Int                @default(0)
+  categoryId        String?
+  category          Category?          @relation(fields: [categoryId], references: [id])
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  invoiceItems      InvoiceItem[]
+  stockHistory      StockHistory[]
+}
+
+model StockHistory {
+  id          String    @id @default(uuid())
+  productId   String
+  product     Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  quantity    Int
+  type        String    // "purchase", "sale", "return", "adjustment"
+  note        String?
+  createdAt   DateTime  @default(now())
+  invoiceId   String?
+}
+
+// Billing and invoice
+model Invoice {
+  id               String         @id @default(uuid())
+  invoiceNumber    String         @unique
+  customerId       String?
+  customer         Customer?      @relation(fields: [customerId], references: [id])
+  userId           String
+  user             User           @relation(fields: [userId], references: [id])
+  items            InvoiceItem[]
+  subtotal         Decimal
+  taxAmount        Decimal
+  discountAmount   Decimal        @default(0)
+  totalAmount      Decimal
+  status           String         @default("PAID") // "DRAFT", "PAID", "PARTIALLY_PAID", "VOIDED", "REFUNDED"
+  paymentMethod    String         // "CASH", "CREDIT_CARD", "DEBIT_CARD", "MOBILE_PAYMENT", "BANK_TRANSFER", "CHEQUE", "LOYALTY_POINTS", "GIFT_CARD"
+  paymentReference String?
+  note             String?
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+  returns          ReturnOrder[]
+}
+
+model InvoiceItem {
+  id          String   @id @default(uuid())
+  invoiceId   String
+  invoice     Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  productId   String
+  product     Product  @relation(fields: [productId], references: [id])
+  quantity    Int
+  unitPrice   Decimal
+  taxRate     Decimal  @default(0)
+  taxAmount   Decimal  @default(0)
+  discount    Decimal  @default(0)
+  total       Decimal
+}
+
+// Returns and refunds
+model ReturnOrder {
+  id          String      @id @default(uuid())
+  invoiceId   String
+  invoice     Invoice     @relation(fields: [invoiceId], references: [id])
+  returnDate  DateTime    @default(now())
+  items       ReturnItem[]
+  totalAmount Decimal
+  reason      String?
+  status      String      @default("COMPLETED") // "PENDING", "COMPLETED", "REJECTED"
+  note        String?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+}
+
+model ReturnItem {
+  id           String      @id @default(uuid())
+  returnId     String
+  returnOrder  ReturnOrder @relation(fields: [returnId], references: [id], onDelete: Cascade)
+  productId    String
+  quantity     Int
+  unitPrice    Decimal
+  total        Decimal
+  reason       String?
+}
+
+// Settings table for store configuration
+model StoreSetting {
+  id            String   @id @default(uuid())
+  storeName     String
+  address       String?
+  phone         String?
+  email         String?
+  taxEnabled    Boolean  @default(true)
+  defaultTaxRate Decimal @default(0)
+  currencySymbol String   @default("$")
+  receiptFooter String?
+  receiptHeader String?
+  logoUrl       String?
+  updatedAt     DateTime @updatedAt
+}
+
+// Logs for user activity
+model ActivityLog {
+  id          String    @id @default(uuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  action      String
+  details     String?
+  createdAt   DateTime  @default(now())
+}
